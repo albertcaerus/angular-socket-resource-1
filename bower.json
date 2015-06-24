@@ -1,0 +1,29 @@
+{
+  "name": "angular-socket-resource",
+  "version": "0.0.0",
+  "authors": [
+    "Michail Schwab <me@michaschwab.de>"
+  ],
+  "description": "Wrapper for $resource using socket.io for automatic live updates of resources",
+  "main": "socket-resource.js",
+  "keywords": [
+    "angular",
+    "socket",
+    "socket.io",
+    "resource",
+    "realtime",
+    "live"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "~1.4",
+    "angular-resource": "~1.4"
+  }
+}
