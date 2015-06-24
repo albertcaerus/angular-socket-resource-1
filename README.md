@@ -1,12 +1,21 @@
 # angular-socket-resource
 
-This module takes care of automatic real time updates in your MEAN application, updating the data in your angular controllers when there are updates on the server.
+This module takes care of automatic real time updates in your [MEAN](http://meanjs.org/) application, updating the data 
+in your [angular](https://angularjs.org/) controllers when there are updates on the server. This is done using [Socket.io](http://socket.io/).
 
-All you need to do is follow the instructions below to set up the server-side events, and then replace $resource with $socketResource on the client side.
+All you need to do is follow the instructions below to set up the server-side events, and then replace `$resource` with `$socketResource` on the client side.
 
 ## Demo
 
-Check out https://github.com/michaschwab/angular-socket-resource-demo (I will host it somewhere soon).
+Check out the demo at http://angular-socket-resource-demo.michaschwab.de.
+
+See the magic by opening the website in two browser windows, editing the articles in one, and seeing live updates in the other window.
+
+More details in the [demo github project](https://github.com/michaschwab/angular-socket-resource-demo).
+
+## What do I have to do in my controller?
+
+Usually: nothing! Just a tiny tweak to your services.
 
 Really anything with simple mongo queries works. In the demo, I use take yeoman's default Articles controller:
 
