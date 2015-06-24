@@ -65,7 +65,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
             Resource.prototype.$save = function()
             {
                 var data = this.getData();
-                console.log(data);
+                //console.log(data);
 
                 Socket.emit('save', { module: module, url: url, data: data });
 
@@ -110,8 +110,8 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
 
             Resource.query = function(parameters)
             {
-                console.log('querying', Resource.resource, arguments);
-                console.log(arguments);
+                //console.log('querying', Resource.resource, arguments);
+                //console.log(arguments);
                 //Resource.resource.query.call(Resource.resource, arguments);
 
                 var doQuery = function(args) { return Resource.resource.query.apply(Resource.resource, args); };
@@ -179,7 +179,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 var data = this.getData();
 
                 Socket.emit('remove', { module: module, url: url, data: data });
-                console.log('emitted remove..');
+                //console.log('emitted remove..');
 
                 var args = Array.prototype.slice.call(arguments); // Convert into array
                 args.unshift(data); // Add the data as first argument
@@ -192,4 +192,32 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
         };
 
         return SocketbaseFactory;
+    })
+    // From http://briantford.com/blog/angular-socket-io
+    .factory('Socket', function ($rootScope)
+    {
+        var socket = io.connect();
+
+        return {
+            on: function (eventName, callback) {
+                //console.log('listening...');
+                socket.on(eventName, function () {
+                    var args = arguments;
+                    $rootScope.$apply(function () {
+                        callback.apply(socket, args);
+                    });
+                });
+            },
+            emit: function (eventName, data, callback) {
+                //console.log('emitting...');
+                socket.emit(eventName, data, function () {
+                    var args = arguments;
+                    $rootScope.$apply(function () {
+                        if (callback) {
+                            callback.apply(socket, args);
+                        }
+                    });
+                })
+            }
+        };
     });
