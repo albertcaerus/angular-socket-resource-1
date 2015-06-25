@@ -8,12 +8,12 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
         {
             var module = url.substr(0, url.indexOf('/'));
 
-            var Resource = function(data)
+            var SocketResource = function(data)
             {
                 this.setData(data);
             };
 
-            Resource.prototype.setData = function(data)
+            SocketResource.prototype.setData = function(data)
             {
                 for(var key in data)
                 {
@@ -24,7 +24,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 }
             };
 
-            Resource.prototype.getData = function()
+            SocketResource.prototype.getData = function()
             {
                 var data = {};
 
@@ -39,12 +39,12 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return data;
             };
 
-            Resource.resource = $resource(url, paramDefaults, actions, options);
+            SocketResource.resource = $resource(url, paramDefaults, actions, options);
 
-            Resource.get = function()
+            SocketResource.get = function()
             {
-                var getter = Resource.resource.get.apply(Resource.resource, arguments);
-                var resrc = new Resource(getter);
+                var getter = SocketResource.resource.get.apply(SocketResource.resource, arguments);
+                var resrc = new SocketResource(getter);
 
                 getter.$promise.then(function(resource)
                 {
@@ -62,17 +62,17 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return resrc;
             };
 
-            Resource.prototype.$save = function(callback)
+            SocketResource.prototype.$save = function(callback)
             {
                 var data = this.getData();
 
-                return Resource.resource.save.call(Resource.resource, data, function(resource)
+                return SocketResource.resource.save.call(SocketResource.resource, data, function(resource)
                 {
                     Socket.emit('save', { module: module, url: url, data: resource });
                     callback.apply(callback, arguments);
                 });
             };
-            Resource.prototype.$update = function()
+            SocketResource.prototype.$update = function()
             {
                 var data = this.getData();
 
@@ -81,14 +81,14 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 var args = Array.prototype.slice.call(arguments); // Convert into array
                 args.unshift(data); // Add the data as first argument
 
-                return Resource.resource.update.apply(Resource.resource, args);
+                return SocketResource.resource.update.apply(SocketResource.resource, args);
             };
 
-            Resource.update = function(limit, res)
+            SocketResource.update = function(limit, res)
             {
                 Socket.emit('update', { module: module, url: url, data: res });
 
-                return Resource.resource.update.apply(Resource.resource, arguments);
+                return SocketResource.resource.update.apply(SocketResource.resource, arguments);
             };
 
             var meetsRequirements = function(resource, requirements)
@@ -131,17 +131,27 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 }
             };
 
-            Resource.query = function(parameters)
+            SocketResource.query = function(parameters)
             {
                 //console.log('querying', Resource.resource, arguments);
                 //console.log(arguments);
                 //Resource.resource.query.call(Resource.resource, arguments);
 
-                var doQuery = function(args) { return Resource.resource.query.apply(Resource.resource, args); };
+                var doQuery = function(args) { return SocketResource.resource.query.apply(SocketResource.resource, args); };
                 var query = doQuery(arguments);
 
                 query.$promise.then(function (results)
                 {
+                    // Converting the Resources into SocketResources so their changes go through this module as well..
+                    for(var i in results)
+                    {
+                        // isNaN check for some properties like $promise and $resolved.
+                        if(results.hasOwnProperty(i) && !isNaN(i))
+                        {
+                            results[i] = new SocketResource(results[i]);
+                        }
+                    }
+
                     Socket.on('save-' + module, function (newContent)
                     {
                         //console.log('new save', newContent, parameters);
@@ -200,7 +210,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return query;
             };
 
-            Resource.prototype.$remove = function()
+            SocketResource.prototype.$remove = function()
             {
                 var data = this.getData();
 
@@ -211,10 +221,10 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 args.unshift(data); // Add the data as first argument
                 args.unshift({});
 
-                return Resource.resource.delete.apply(Resource.resource, args);
+                return SocketResource.resource.delete.apply(SocketResource.resource, args);
             };
 
-            return Resource;
+            return SocketResource;
         };
 
         return SocketbaseFactory;
