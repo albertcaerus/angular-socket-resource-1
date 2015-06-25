@@ -86,6 +86,13 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return Resource.resource.update.apply(Resource.resource, args);
             };
 
+            Resource.update = function(limit, res)
+            {
+                Socket.emit('update', { module: module, url: url, data: res });
+
+                return Resource.resource.update.apply(Resource.resource, arguments);
+            };
+
             var meetsRequirements = function(resource, requirements)
             {
                 if(!requirements)
