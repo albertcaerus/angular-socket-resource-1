@@ -105,9 +105,27 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                     {
                         if(requirements.hasOwnProperty(key))
                         {
-                            if(resource[key] !== requirements[key])
+                            var resourceValueIsArray = resource[key].constructor === Array;
+                            var requirementValueIsArray = requirements[key].constructor === Array;
+
+                            if(requirementValueIsArray && !resourceValueIsArray)
                             {
-                                return false;
+                                // If the requirement value is an array, a resource with the value thats within the array
+                                // should be accepted.
+
+                                if(requirements[key].indexOf(resource[key]) === -1)
+                                {
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                // Otherwise, check if the values are simply the same.
+
+                                if(resource[key] != requirements[key])
+                                {
+                                    return false;
+                                }
                             }
                         }
                     }
@@ -128,13 +146,16 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 {
                     Socket.on('save-' + module, function (newContent)
                     {
+                        //console.log('new save', newContent, parameters);
                         if(meetsRequirements(newContent, parameters))
                         {
+                            //console.log('adding to list..');
                             results.push(newContent);
                         }
                     });
                     Socket.on('update-' + module, function (updatedContent)
                     {
+                        //console.log('received update');
                         for(var i in results)
                         {
                             if(results.hasOwnProperty(i))
