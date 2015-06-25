@@ -66,10 +66,10 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
             {
                 var data = this.getData();
 
-                return SocketResource.resource.save.call(SocketResource.resource, data, function(resource)
+                return SocketResource.resource.save.call(SocketResource.resource, data, function(resource, cb)
                 {
                     Socket.emit('save', { module: module, url: url, data: resource });
-                    callback.apply(callback, arguments);
+                    callback.call(callback, new SocketResource(resource), cb);
                 });
             };
             SocketResource.prototype.$update = function()
@@ -158,7 +158,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                         if(meetsRequirements(newContent, parameters))
                         {
                             //console.log('adding to list..', results, newContent);
-                            results.push(newContent);
+                            results.push(new SocketResource(newContent));
                         }
                     });
                     Socket.on('update-' + module, function (updatedContent)
@@ -173,7 +173,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
 
                                 if(result[idField] == updatedContent[idField])
                                 {
-                                    results[i] = updatedContent;
+                                    results[i] = new SocketResource(updatedContent);
                                 }
                             }
                         }
