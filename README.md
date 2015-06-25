@@ -82,11 +82,11 @@ Before Installation, please be aware of the security threat imposed by this modu
     
     
     
-3. Add angular-socket-resource to bower.json
+3. Add angular-socket-resource to bower.json and run `bower install`.
 
-4. Add lib/angular-socket-resource/socket-resource.js to your template 
+4. Include lib/angular-socket-resource/socket-resource.js in your template .
 
-5. Add ngSocketResource to your angular app dependencies
+5. Add ngSocketResource to your angular app dependencies.
 
 6. In services that handle **non-confidential** data, replace `$resource` with `$socketResource`.
 
