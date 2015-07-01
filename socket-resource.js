@@ -113,7 +113,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 {
                     for(var key in requirements)
                     {
-                        if(requirements.hasOwnProperty(key))
+                        if(requirements.hasOwnProperty(key) && resource[key])
                         {
                             var resourceValueIsArray = resource[key].constructor === Array;
                             var requirementValueIsArray = requirements[key].constructor === Array;
