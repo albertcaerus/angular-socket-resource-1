@@ -32,7 +32,8 @@ After replacing that with `$socketResource`, it will not only fetch the data, bu
 
 ## Installation
 
-Before Installation, please be aware of the security threat imposed by this module as described further below. 
+Before Installation, please be aware of the possible security threat imposed by this module as described further below.
+If you want to use this for sensitive data you should install [passport.socketio](https://github.com/jfromaniello/passport.socketio) first.
 
 1. Make sure socket.io works. If it's not yet in use, add socket.io as dependency to package.json
 
@@ -45,50 +46,103 @@ Before Installation, please be aware of the security threat imposed by this modu
         <script type="text/javascript">
             var socket = io();
         </script>
+        
+2. Install [passport.socketio](https://github.com/jfromaniello/passport.socketio) so this works can synchronize sensitive data! If you don't need that you can skip this step.
     
-2. Edit your server.js to include the following code:
+3. Edit your server.js to include the following code:
 
         var server = require('http').Server(app);
-        var io = require('socket.io').listen(server);
+        var io = require("socket.io")(server);
         
+        // Stuff for passport.socketio here
+        // ......
+        // And then...
+        
+        if(!passportSocketIo)
+        {
+            console.log("WARNING: passportSocketIo is not working, so all data with be sent to everyone!!")
+        }
+    
         io.on('connection', function(socket)
         {
+            var currentSocketId = socket.id;
+    
             socket.on('save', function(data)
             {
                 var mod = data.module;
                 var entry = data.data;
-        
-                io.emit('save-' + mod, entry);
+                var restrictToUserIds = data.restrictToUserIds ? data.restrictToUserIds : false;
+    
+                if(restrictToUserIds && passportSocketIo)
+                {
+                    var restrictedUserIds = restrictToUserIds.constructor === Array ? restrictToUserIds : [restrictToUserIds];
+    
+                    passportSocketIo.filterSocketsByUser(io, function(user)
+                    {
+                        return restrictedUserIds.indexOf(user._id) !== -1;
+                    }).forEach(function(socket)
+                    {
+                        socket.emit('save-' + mod, entry);
+                    });
+                }
+                else
+                {
+                    // Send to everyone
+                    io.sockets.emit('save-' + mod, entry);
+                }
             });
-        
+    
             socket.on('update', function(data)
             {
                 var mod = data.module;
                 var entry = data.data;
-        
-                io.emit('update-' + mod, entry);
+    
+                var restrictToUserIds = data.restrictToUserIds ? data.restrictToUserIds : false;
+    
+                if(restrictToUserIds && passportSocketIo)
+                {
+                    var restrictedUserIds = restrictToUserIds.constructor === Array ? restrictToUserIds : [restrictToUserIds];
+    
+                    passportSocketIo.filterSocketsByUser(io, function(user)
+                    {
+                        return restrictedUserIds.indexOf(user._id) !== -1;
+                    }).forEach(function(socket)
+                    {
+                        // Assuming that the active socket will take care of updating himself.
+                        if(socket.id !== currentSocketId)
+                        {
+                            socket.emit('update-' + mod, entry);
+                        }
+                    });
+                }
+                else
+                {
+                    // Send to everyone
+                    socket.broadcast.emit('update-' + mod, entry);
+                }
             });
-        
+    
             socket.on('remove', function(data)
             {
                 var mod = data.module;
                 var entry = data.data;
-        
-                io.emit('remove-' + mod, entry);
+    
+                io.sockets.emit('remove-' + mod, entry);
             });
         });
-        
-        server.listen(config.port);
     
     
     
-3. Add angular-socket-resource to bower.json and run `bower install`.
+4. Add angular-socket-resource to bower.json and run `bower install`.
 
-4. Include lib/angular-socket-resource/socket-resource.js in your template .
+5. Include lib/angular-socket-resource/socket-resource.js in your template .
 
-5. Add ngSocketResource to your angular app dependencies.
+6. Add ngSocketResource to your angular app dependencies.
 
-6. In services that handle **non-confidential** data, replace `$resource` with `$socketResource`.
+7. In the services in which you want real time updates, replace `$resource` with `$socketResource`.
+
+8. For restricting the users that see the real time updates of sensitive data, add a `restrictToUserIds` parameter to the appropriate $save and $update calls.
+That way you can specify the users that are allowed to get the update (such as the user you are sending a private message to). 
 
 You should be all set!
 

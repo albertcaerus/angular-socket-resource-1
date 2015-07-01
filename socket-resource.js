@@ -62,26 +62,38 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return resrc;
             };
 
-            SocketResource.prototype.$save = function(callback)
+            SocketResource.prototype.$save = function(parameters, callback)
             {
                 var data = this.getData();
+                if(typeof parameters == 'function')
+                {
+                    callback = parameters;
+                }
 
                 return SocketResource.resource.save.call(SocketResource.resource, data, function(resource, cb)
                 {
-                    Socket.emit('save', { module: module, url: url, data: resource });
+                    var socketObj = { module: module, url: url, data: resource };
+                    if(parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
+                    Socket.emit('save', socketObj);
                     callback.call(callback, new SocketResource(resource), cb);
                 });
             };
-            SocketResource.prototype.$update = function()
+            SocketResource.prototype.$update = function(parameters, callback)
             {
                 var data = this.getData();
+                if(typeof parameters == 'function')
+                {
+                    callback = parameters;
+                }
 
-                Socket.emit('update', { module: module, url: url, data: data });
+                var socketObj = { module: module, url: url, data: data };
+                if(parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
+                Socket.emit('update', socketObj);
 
-                var args = Array.prototype.slice.call(arguments); // Convert into array
-                args.unshift(data); // Add the data as first argument
+                //var args = Array.prototype.slice.call(arguments); // Convert into array
+                //args.unshift(data); // Add the data as first argument
 
-                return SocketResource.resource.update.apply(SocketResource.resource, args);
+                return SocketResource.resource.update.call(SocketResource.resource, data, parameters, callback);
             };
 
             SocketResource.update = function(limit, res)
