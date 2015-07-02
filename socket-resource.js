@@ -75,7 +75,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                     var socketObj = { module: module, url: url, data: resource };
                     if(parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
                     Socket.emit('save', socketObj);
-                    callback.call(callback, new SocketResource(resource), cb);
+                    if(callback) callback.call(callback, new SocketResource(resource), cb);
                 });
             };
             SocketResource.prototype.$update = function(parameters, callback)
@@ -93,7 +93,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 //var args = Array.prototype.slice.call(arguments); // Convert into array
                 //args.unshift(data); // Add the data as first argument
 
-                return SocketResource.resource.update.call(SocketResource.resource, data, parameters, callback);
+                return SocketResource.resource.update.call(SocketResource.resource, parameters, data, callback);
             };
 
             SocketResource.update = function(limit, res)
@@ -195,7 +195,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                                 {
                                     results[i] = new SocketResource(updatedContent);
                                     results.downloadedUpdates.push({type: 'update', time: new Date() });
-                                    console.log(results.downloadedUpdates);
+                                    //console.log(results.downloadedUpdates);
                                     break;
                                 }
                             }
