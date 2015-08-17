@@ -73,7 +73,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return SocketResource.resource.save.call(SocketResource.resource, data, function(resource, cb)
                 {
                     var socketObj = { module: module, url: url, data: resource };
-                    if(parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
+                    if(parameters && parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
                     Socket.emit('save', socketObj);
                     if(callback) callback.call(callback, new SocketResource(resource), cb);
                 });
@@ -87,7 +87,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 }
 
                 var socketObj = { module: module, url: url, data: data };
-                if(parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
+                if(parameters && parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
                 Socket.emit('update', socketObj);
 
                 //var args = Array.prototype.slice.call(arguments); // Convert into array
