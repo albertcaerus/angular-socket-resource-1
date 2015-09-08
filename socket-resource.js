@@ -6,7 +6,14 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
 
         var SocketbaseFactory = function(url, paramDefaults, actions, options)
         {
-            var module = url.substr(0, url.indexOf('/'));
+            // Getting the 'module' from the URL, eg '/api/messages/:messageId' -> 'messages'.
+            // This is used to know which $socketResources to notify of changes.
+
+            var apiIndex = url.indexOf('api/');
+            var moduleStart = apiIndex === -1 ? 0 : apiIndex + 4;
+            var module = url.substr(moduleStart);
+            module = module.substr(0, module.indexOf('/'));
+            //console.log(url, module);
 
             var SocketResource = function(data)
             {
