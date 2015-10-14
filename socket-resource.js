@@ -182,9 +182,10 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                             if(index == -1)
                             {
                                 //console.log('adding to list..', results, newContent);
+                                var newSocketResource = new SocketResource(newContent);
 
-                                results.push(new SocketResource(newContent));
-                                results.downloadedUpdates.push({type: 'save', time: new Date() });
+                                results.push(newSocketResource);
+                                results.downloadedUpdates.push({type: 'save', time: new Date(), content: newSocketResource });
                             }
                         }
                     });
@@ -201,7 +202,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                                 if(result[idField] == updatedContent[idField])
                                 {
                                     results[i] = new SocketResource(updatedContent);
-                                    results.downloadedUpdates.push({type: 'update', time: new Date() });
+                                    results.downloadedUpdates.push({type: 'update', time: new Date(), content: results[i] });
                                     //console.log(results.downloadedUpdates);
                                     break;
                                 }
@@ -232,9 +233,10 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
 
                         if(index !== -1)
                         {
+                            var result = results[index];
                             results.splice(index, 1); // This updates the array and takes out the deleted element.
 
-                            results.downloadedUpdates.push({type: 'remove', time: new Date() });
+                            results.downloadedUpdates.push({type: 'remove', time: new Date(), content: result  });
                         }
                     });
                 });
