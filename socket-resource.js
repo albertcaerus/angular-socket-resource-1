@@ -252,6 +252,10 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 //console.log('emitted remove..');
 
                 var args = Array.prototype.slice.call(arguments); // Convert into array
+                if(args.length == 0)
+                {
+                    args.push({});
+                }
                 args.push(data);
 
                 return SocketResource.resource.delete.apply(SocketResource.resource, args);
