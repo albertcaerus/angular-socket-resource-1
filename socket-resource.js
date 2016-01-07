@@ -69,11 +69,12 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                 return resrc;
             };
 
-            SocketResource.prototype.$save = function(parameters, callback)
+            SocketResource.prototype.$save = function(parameters, callback, onE)
             {
                 var data = this.getData();
                 if(typeof parameters == 'function')
                 {
+                    onE = callback;
                     callback = parameters;
                 }
 
@@ -83,7 +84,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                     if(parameters && parameters.restrictToUserIds) socketObj.restrictToUserIds = parameters.restrictToUserIds;
                     Socket.emit('save', socketObj);
                     if(callback) callback.call(callback, new SocketResource(resource), cb);
-                });
+                }, onE);
             };
             SocketResource.prototype.$update = function(parameters, callback)
             {
