@@ -125,6 +125,7 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                         {
                             var resourceValueIsArray = resource[key].constructor === Array;
                             var requirementValueIsArray = requirements[key].constructor === Array;
+                            var resourceHasIdAndValueIsString = resource[key].hasOwnProperty('_id') && typeof requirements[key] == 'string';
 
                             if(requirementValueIsArray && !resourceValueIsArray)
                             {
@@ -135,6 +136,11 @@ angular.module('ngSocketResource', []).factory('$socketResource', function(Socke
                                 {
                                     return false;
                                 }
+                            }
+                            else if(resourceHasIdAndValueIsString)
+                            {
+                                // eg user._id, and userId.
+                                return resource[key]._id == requirements[key];
                             }
                             else
                             {
